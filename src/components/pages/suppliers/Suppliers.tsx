@@ -4,7 +4,12 @@ import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
 import { QueryParams } from '@/types/types'
 import { getSupplies } from '@/api/suppliers'
-import { SuppliersContent, SuppliersTitle } from './Suppliers.styles'
+import {
+  ColumnImage,
+  SuppliersTitle,
+  SuppliersContent,
+  ColumnImageWrapper,
+} from './Suppliers.styles'
 
 interface Supplier {
   id: string
@@ -13,6 +18,7 @@ interface Supplier {
   companyName: string
   contactName: string
   contactTitle: string
+  contactAvatar?: string
 }
 interface ColumnMeta {
   field: string
@@ -26,6 +32,7 @@ const Suppliers: FC = (): ReactElement => {
   const [page, setPage] = useState<number>(1)
   const [first, setFirst] = useState<number>(0)
   const LIMIT_COUNT = 20
+  const AVATAR_API_PATH = 'https://avatars.dicebear.com/v2/initials/'
 
   const columns: ColumnMeta[] = [
     { field: 'companyName', header: 'Company' },
@@ -34,6 +41,27 @@ const Suppliers: FC = (): ReactElement => {
     { field: 'city', header: 'City' },
     { field: 'country', header: 'Country' },
   ]
+
+  useEffect(() => {
+    fetchSuppliers()
+  }, [page])
+
+  const getPreparedSuppliers = (supplies: Supplier[]) => {
+    if (!supplies.length) return []
+
+    return supplies.map((supplie) => {
+      return {
+        ...supplie,
+        contactAvatar: getPreparedAvatarPath(supplie.contactName),
+      }
+    })
+  }
+
+  const getPreparedAvatarPath = (avatar: string) => {
+    const avatarPath = encodeURIComponent(avatar)
+
+    return `${AVATAR_API_PATH}${avatarPath}.svg`
+  }
 
   const fetchSuppliers = async () => {
     setIsLoadingSuppliers(true)
@@ -46,8 +74,9 @@ const Suppliers: FC = (): ReactElement => {
 
       const response = await getSupplies(params)
       const { supplies, totalElementsFromDB: records } = response.data
+      const preparedSuppliers = getPreparedSuppliers(supplies)
 
-      setSuppliers(supplies)
+      setSuppliers(preparedSuppliers)
       setTotalRecords(records)
 
       return Promise.resolve()
@@ -58,9 +87,16 @@ const Suppliers: FC = (): ReactElement => {
     }
   }
 
-  useEffect(() => {
-    fetchSuppliers()
-  }, [page])
+  const avatarBodyTemplate = (row: Supplier) => {
+    return (
+      <ColumnImageWrapper>
+        <ColumnImage
+          src={row.contactAvatar}
+          alt="avatar"
+        />
+      </ColumnImageWrapper>
+    )
+  }
 
   const handlePage = (e: DataTablePageEvent) => {
     const { first, page } = e
@@ -85,6 +121,7 @@ const Suppliers: FC = (): ReactElement => {
         stripedRows
         onPage={handlePage}
       >
+        <Column body={avatarBodyTemplate} />
         {columns.map((col) => (
           <Column
             key={col.field}

@@ -5,6 +5,7 @@ import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 import { getOrders } from '@/api/orders'
 import { QueryParams } from '@/types/types'
 import { OrdersContent, OrdersTitle } from './Orders.styles'
+import { formatDate } from '@/services/dayjs-service'
 
 interface Order {
   id: string
@@ -41,6 +42,17 @@ const Orders: FC = (): ReactElement => {
     { field: 'shipCity', header: 'Country' },
   ]
 
+  const getPreparedOrders = (orders: Order[]) => {
+    if (!orders.length) return []
+
+    return orders.map((order) => {
+      return {
+        ...order,
+        shippedDate: formatDate(order.shippedDate, 'YYYY-MM-DD'),
+      }
+    })
+  }
+
   const fetchOrders = async () => {
     setIsLoadingOrders(true)
 
@@ -52,8 +64,9 @@ const Orders: FC = (): ReactElement => {
 
       const response = await getOrders(params)
       const { orders: ordersList, totalElementsFromDB: records } = response.data
+      const preparedOrders = getPreparedOrders(ordersList)
 
-      setOrders(ordersList)
+      setOrders(preparedOrders)
       setTotalRecords(records)
 
       return Promise.resolve()

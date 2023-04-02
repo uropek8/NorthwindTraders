@@ -49,3 +49,13 @@ export const SuppliersTitle = styled.h2`
   font-size: 20px;
   font-weight: 500;
 `
+
+export const ColumnImageWrapper = styled.div`
+  display: flex;
+`
+
+export const ColumnImage = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+`
