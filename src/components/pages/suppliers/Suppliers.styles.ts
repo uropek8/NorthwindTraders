@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { NavLink } from 'react-router-dom'
 
 export const SuppliersContent = styled.div`
   width: 100%;
@@ -39,6 +40,10 @@ export const SuppliersContent = styled.div`
       min-width: 40px;
       height: 40px;
     }
+
+    &.p-paginator-bottom {
+      border-width: 0;
+    }
   }
 `
 
@@ -58,4 +63,13 @@ export const ColumnImage = styled.img`
   width: 30px;
   height: 30px;
   border-radius: 50%;
+`
+
+export const ColumnLink = styled(NavLink)`
+  color: #2563eb;
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 0.75;
+  }
 `

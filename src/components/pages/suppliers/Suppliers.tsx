@@ -5,6 +5,7 @@ import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 import { QueryParams } from '@/types/types'
 import { getSupplies } from '@/api/suppliers'
 import {
+  ColumnLink,
   ColumnImage,
   SuppliersTitle,
   SuppliersContent,
@@ -35,7 +36,7 @@ const Suppliers: FC = (): ReactElement => {
   const AVATAR_API_PATH = 'https://avatars.dicebear.com/v2/initials/'
 
   const columns: ColumnMeta[] = [
-    { field: 'companyName', header: 'Company' },
+    // { field: 'companyName', header: 'Company' },
     { field: 'contactName', header: 'Contact' },
     { field: 'contactTitle', header: 'Title' },
     { field: 'city', header: 'City' },
@@ -98,6 +99,16 @@ const Suppliers: FC = (): ReactElement => {
     )
   }
 
+  const companyBodyTemplate = (row: Supplier) => {
+    const id = getRowIdxByCompany(row.companyName) + 1
+
+    return <ColumnLink to={`/supplier/${id}`}>{row.companyName}</ColumnLink>
+  }
+
+  const getRowIdxByCompany = (company: string) => {
+    return suppliers.findIndex((sup) => sup.companyName === company)
+  }
+
   const handlePage = (e: DataTablePageEvent) => {
     const { first, page } = e
     const currentPage = page !== undefined ? page + 1 : 1
@@ -122,6 +133,11 @@ const Suppliers: FC = (): ReactElement => {
         onPage={handlePage}
       >
         <Column body={avatarBodyTemplate} />
+        <Column
+          body={companyBodyTemplate}
+          field="companyName"
+          header="Company"
+        />
         {columns.map((col) => (
           <Column
             key={col.field}

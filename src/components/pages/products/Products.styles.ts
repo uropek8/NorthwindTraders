@@ -43,7 +43,7 @@ export const ProductsContent = styled.div`
 `
 
 export const ProductsTitle = styled.h2`
-  margin-top: 0px;
+  margin-top: 0;
   margin-bottom: 15px;
   color: inherit;
   font-size: 20px;

@@ -5,6 +5,7 @@ const Home = lazy(() => import('@/components/pages/home/Home'))
 const Layout = lazy(() => import('@/components/layout/Layout'))
 const Search = lazy(() => import('@/components/pages/search/Search'))
 const Orders = lazy(() => import('@/components/pages/orders/Orders'))
+const Supplier = lazy(() => import('@/components/pages/supplier/Supplier'))
 const Products = lazy(() => import('@/components/pages/products/Products'))
 const Employees = lazy(() => import('@/components/pages/employees/Employees'))
 const Customers = lazy(() => import('@/components/pages/customers/Customers'))
@@ -28,6 +29,10 @@ const App = () => {
             <Route
               path="/suppliers"
               element={<Suppliers />}
+            />
+            <Route
+              path="/supplier/:id"
+              element={<Supplier />}
             />
             <Route
               path="/products"

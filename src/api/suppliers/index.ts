@@ -7,4 +7,8 @@ function getSupplies(params: QueryParams) {
   return axiosCfg.get(API_URL, { params })
 }
 
-export { getSupplies }
+function getSupplieById(id: string) {
+  return axiosCfg.get(`${API_URL}/${id}`)
+}
+
+export { getSupplies, getSupplieById }
