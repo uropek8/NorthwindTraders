@@ -1,4 +1,4 @@
-import{r as e,j as o}from"./index-6329a751.js";import{D as w,C as y}from"./datatable.esm-d3c050ec.js";import{i as S}from"./axios-7917a497.js";import{s as p}from"./styled-components.browser.esm-cbd7876a.js";import"./portal.esm-5692bc9d.js";import"./overlayservice.esm-0d42f894.js";const v="/api/products";function I(s){return S.get(v,{params:s})}const L=p.div`
+import{r as e,j as o}from"./index-2d9188f0.js";import{D as w,C as y}from"./datatable.esm-09b0dce5.js";import{i as S}from"./axios-23b5252b.js";import{s as p}from"./styled-components.browser.esm-b106199d.js";import"./portal.esm-e964cdb6.js";import"./overlayservice.esm-e70e1c8d.js";const v="/api/products";function I(s){return S.get(v,{params:s})}const L=p.div`
   width: 100%;
 
   .p-datatable {
