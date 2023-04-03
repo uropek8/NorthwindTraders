@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { NavLink } from 'react-router-dom'
 
 export const ProductsContent = styled.div`
   width: 100%;
@@ -48,4 +49,13 @@ export const ProductsTitle = styled.h2`
   color: inherit;
   font-size: 20px;
   font-weight: 500;
+`
+
+export const ColumnLink = styled(NavLink)`
+  color: #2563eb;
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 0.75;
+  }
 `

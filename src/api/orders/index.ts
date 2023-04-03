@@ -7,4 +7,8 @@ function getOrders(params: QueryParams) {
   return axiosCfg.get(API_URL, { params })
 }
 
-export { getOrders }
+function getOrderById(id: string) {
+  return axiosCfg.get(`${API_URL}/${id}`)
+}
+
+export { getOrders, getOrderById }

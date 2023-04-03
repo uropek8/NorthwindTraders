@@ -16,6 +16,7 @@ interface Supplier {
   id: string
   city: string
   country: string
+  supplierId: number
   companyName: string
   contactName: string
   contactTitle: string
@@ -36,7 +37,6 @@ const Suppliers: FC = (): ReactElement => {
   const AVATAR_API_PATH = 'https://avatars.dicebear.com/v2/initials/'
 
   const columns: ColumnMeta[] = [
-    // { field: 'companyName', header: 'Company' },
     { field: 'contactName', header: 'Contact' },
     { field: 'contactTitle', header: 'Title' },
     { field: 'city', header: 'City' },
@@ -100,13 +100,11 @@ const Suppliers: FC = (): ReactElement => {
   }
 
   const companyBodyTemplate = (row: Supplier) => {
-    const id = getRowIdxByCompany(row.companyName) + 1
-
-    return <ColumnLink to={`/supplier/${id}`}>{row.companyName}</ColumnLink>
-  }
-
-  const getRowIdxByCompany = (company: string) => {
-    return suppliers.findIndex((sup) => sup.companyName === company)
+    return (
+      <ColumnLink to={`/supplier/${row.supplierId}`}>
+        {row.companyName}
+      </ColumnLink>
+    )
   }
 
   const handlePage = (e: DataTablePageEvent) => {

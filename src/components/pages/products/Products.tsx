@@ -4,15 +4,16 @@ import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
 import { QueryParams } from '@/types/types'
 import { getProducts } from '@/api/products'
-import { ProductsContent, ProductsTitle } from './Products.styles'
+import { ProductsContent, ProductsTitle, ColumnLink } from './Products.styles'
 
 interface Product {
   id: string
-  productName: string
-  quantityPerUnit: string
+  productId: number
   unitPrice: string
+  productName: string
   unitsInStock: number
   unitsOnOrder: number
+  quantityPerUnit: string
 }
 interface ColumnMeta {
   field: string
@@ -34,6 +35,10 @@ const Products: FC = (): ReactElement => {
     { field: 'unitsInStock', header: 'Stock' },
     { field: 'unitsOnOrder', header: 'Orders' },
   ]
+
+  useEffect(() => {
+    fetchProducts()
+  }, [page])
 
   const fetchProducts = async () => {
     setIsLoadingProducts(true)
@@ -59,9 +64,13 @@ const Products: FC = (): ReactElement => {
     }
   }
 
-  useEffect(() => {
-    fetchProducts()
-  }, [page])
+  const productBodyTemplate = (row: Product) => {
+    return (
+      <ColumnLink to={`/product/${row.productId}`}>
+        {row.productName}
+      </ColumnLink>
+    )
+  }
 
   const handlePage = (e: DataTablePageEvent) => {
     const { first, page } = e
@@ -86,6 +95,11 @@ const Products: FC = (): ReactElement => {
         stripedRows
         onPage={handlePage}
       >
+        <Column
+          body={productBodyTemplate}
+          field="productName"
+          header="Name"
+        />
         {columns.map((col) => (
           <Column
             key={col.field}

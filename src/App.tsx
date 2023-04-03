@@ -3,8 +3,10 @@ import { Routes, Route } from 'react-router-dom'
 
 const Home = lazy(() => import('@/components/pages/home/Home'))
 const Layout = lazy(() => import('@/components/layout/Layout'))
+const Order = lazy(() => import('@/components/pages/order/Order'))
 const Search = lazy(() => import('@/components/pages/search/Search'))
 const Orders = lazy(() => import('@/components/pages/orders/Orders'))
+const Product = lazy(() => import('@/components/pages/product/Product'))
 const Supplier = lazy(() => import('@/components/pages/supplier/Supplier'))
 const Products = lazy(() => import('@/components/pages/products/Products'))
 const Employees = lazy(() => import('@/components/pages/employees/Employees'))
@@ -39,8 +41,16 @@ const App = () => {
               element={<Products />}
             />
             <Route
+              path="/product/:id"
+              element={<Product />}
+            />
+            <Route
               path="/orders"
               element={<Orders />}
+            />
+            <Route
+              path="/order/:id"
+              element={<Order />}
             />
             <Route
               path="/employees"

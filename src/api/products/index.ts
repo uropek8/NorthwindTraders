@@ -7,4 +7,8 @@ function getProducts(params: QueryParams) {
   return axiosCfg.get(API_URL, { params })
 }
 
-export { getProducts }
+function getProductById(id: string) {
+  return axiosCfg.get(`${API_URL}/${id}`)
+}
+
+export { getProducts, getProductById }

@@ -4,19 +4,19 @@ import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
 import { getOrders } from '@/api/orders'
 import { QueryParams } from '@/types/types'
-import { OrdersContent, OrdersTitle } from './Orders.styles'
 import { formatDate } from '@/services/dayjs-service'
+import { OrdersContent, OrdersTitle, ColumnLink } from './Orders.styles'
 
 interface Order {
   id: string
   orderId: number
-  totalPrice: number
   quantity: number
   products: number
-  shippedDate: string
   shipName: string
-  shipCountry: string
   shipCity: string
+  totalPrice: number
+  shippedDate: string
+  shipCountry: string
 }
 interface ColumnMeta {
   field: string
@@ -32,7 +32,6 @@ const Orders: FC = (): ReactElement => {
   const LIMIT_COUNT = 20
 
   const columns: ColumnMeta[] = [
-    { field: 'orderId', header: 'Id' },
     { field: 'totalPrice', header: 'Total Price' },
     { field: 'products', header: 'Products' },
     { field: 'quantity', header: 'Quantity' },
@@ -41,6 +40,10 @@ const Orders: FC = (): ReactElement => {
     { field: 'shipCountry', header: 'City' },
     { field: 'shipCity', header: 'Country' },
   ]
+
+  useEffect(() => {
+    fetchOrders()
+  }, [page])
 
   const getPreparedOrders = (orders: Order[]) => {
     if (!orders.length) return []
@@ -77,9 +80,9 @@ const Orders: FC = (): ReactElement => {
     }
   }
 
-  useEffect(() => {
-    fetchOrders()
-  }, [page])
+  const orderIdBodyTemplate = (row: Order) => {
+    return <ColumnLink to={`/order/${row.orderId}`}>{row.orderId}</ColumnLink>
+  }
 
   const handlePage = (e: DataTablePageEvent) => {
     const { first, page } = e
@@ -104,6 +107,11 @@ const Orders: FC = (): ReactElement => {
         stripedRows
         onPage={handlePage}
       >
+        <Column
+          body={orderIdBodyTemplate}
+          header="Id"
+          field="orderId"
+        />
         {columns.map((col) => (
           <Column
             key={col.field}

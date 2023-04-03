@@ -2,16 +2,16 @@ import { FC, ReactElement, useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 
 import {
-  SuppliersBox,
-  SuppliersRow,
-  SuppliersBtn,
-  SuppliersList,
-  SuppliersItem,
-  SuppliersLabel,
-  SuppliersTitle,
-  SuppliersAction,
-  SuppliersHeader,
-  SuppliersContent,
+  SupplierBox,
+  SupplierRow,
+  SupplierBtn,
+  SupplierList,
+  SupplierItem,
+  SupplierLabel,
+  SupplierTitle,
+  SupplierAction,
+  SupplierHeader,
+  SupplierContent,
 } from './Supplier.styles'
 import { getSupplieById } from '@/api/suppliers'
 import { capitalizeFromCamelCase } from '@/services/string-service'
@@ -63,9 +63,9 @@ const Supplier: FC = (): ReactElement => {
 
     try {
       const response = await getSupplieById(id)
-      const { supplier } = response.data
+      const { supplier: supplierData } = response.data
 
-      setSupplier(supplier)
+      setSupplier(supplierData)
 
       return Promise.resolve()
     } catch (error) {
@@ -80,17 +80,17 @@ const Supplier: FC = (): ReactElement => {
   }
 
   return (
-    <SuppliersBox>
-      <SuppliersHeader>
-        <SuppliersTitle>
+    <SupplierBox>
+      <SupplierHeader>
+        <SupplierTitle>
           <i className="pi pi-id-card"></i>
           Supplier information
-        </SuppliersTitle>
-      </SuppliersHeader>
-      <SuppliersContent>
+        </SupplierTitle>
+      </SupplierHeader>
+      <SupplierContent>
         {isLoadingSupplier && <p>Loading...</p>}
-        <SuppliersRow>
-          <SuppliersList>
+        <SupplierRow>
+          <SupplierList>
             {supplier &&
               Object.keys(supplier).map((key) => {
                 if (
@@ -100,18 +100,18 @@ const Supplier: FC = (): ReactElement => {
                   return null
 
                 return (
-                  <SuppliersItem key={key}>
-                    <SuppliersLabel>
+                  <SupplierItem key={key}>
+                    <SupplierLabel>
                       {capitalizeFromCamelCase(key)}
-                    </SuppliersLabel>
+                    </SupplierLabel>
                     {supplier[key as keyof Supplier]}
-                  </SuppliersItem>
+                  </SupplierItem>
                 )
               })}
-          </SuppliersList>
-        </SuppliersRow>
-        <SuppliersRow>
-          <SuppliersList>
+          </SupplierList>
+        </SupplierRow>
+        <SupplierRow>
+          <SupplierList>
             {supplier &&
               Object.keys(supplier).map((key) => {
                 if (
@@ -121,25 +121,25 @@ const Supplier: FC = (): ReactElement => {
                   return null
 
                 return (
-                  <SuppliersItem key={key}>
-                    <SuppliersLabel>
+                  <SupplierItem key={key}>
+                    <SupplierLabel>
                       {capitalizeFromCamelCase(key)}
-                    </SuppliersLabel>
+                    </SupplierLabel>
                     {supplier[key as keyof Supplier]}
-                  </SuppliersItem>
+                  </SupplierItem>
                 )
               })}
-          </SuppliersList>
-        </SuppliersRow>
-      </SuppliersContent>
-      <SuppliersAction>
-        <SuppliersBtn
+          </SupplierList>
+        </SupplierRow>
+      </SupplierContent>
+      <SupplierAction>
+        <SupplierBtn
           severity="danger"
           label="Go back"
           onClick={handleClickBack}
         />
-      </SuppliersAction>
-    </SuppliersBox>
+      </SupplierAction>
+    </SupplierBox>
   )
 }
 
