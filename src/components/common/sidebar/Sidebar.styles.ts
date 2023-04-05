@@ -58,6 +58,10 @@ export const SidebarListLink = styled(NavLink)`
   background-color: transparent;
   transition: all 0.3s ease;
 
+  &.active {
+    background-color: rgb(55, 65, 81);
+  }
+
   &:hover {
     background-color: rgb(55, 65, 81);
   }

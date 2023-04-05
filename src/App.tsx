@@ -9,6 +9,7 @@ const Orders = lazy(() => import('@/components/pages/orders/Orders'))
 const Product = lazy(() => import('@/components/pages/product/Product'))
 const Supplier = lazy(() => import('@/components/pages/supplier/Supplier'))
 const Products = lazy(() => import('@/components/pages/products/Products'))
+const Employee = lazy(() => import('@/components/pages/employee/Employee'))
 const Employees = lazy(() => import('@/components/pages/employees/Employees'))
 const Customers = lazy(() => import('@/components/pages/customers/Customers'))
 const Dashboard = lazy(() => import('@/components/pages/dashboard/Dashboard'))
@@ -55,6 +56,10 @@ const App = () => {
             <Route
               path="/employees"
               element={<Employees />}
+            />
+            <Route
+              path="/employee/:id"
+              element={<Employee />}
             />
             <Route
               path="/customers"
