@@ -2,7 +2,7 @@ import { FC, ReactElement, useState, useEffect } from 'react'
 import { Column } from 'primereact/column'
 import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
-import { QueryParams } from '@/types/types'
+import { QueryParams, ColumnMeta } from '@/types/types'
 import { getProducts } from '@/api/products'
 import { ProductsContent, ProductsTitle, ColumnLink } from './Products.styles'
 
@@ -14,10 +14,6 @@ interface Product {
   unitsInStock: number
   unitsOnOrder: number
   quantityPerUnit: string
-}
-interface ColumnMeta {
-  field: string
-  header: string
 }
 
 const Products: FC = (): ReactElement => {

@@ -9,7 +9,7 @@ import {
   EmployeesContent,
   ColumnImageWrapper,
 } from './Employees.styles'
-import { QueryParams } from '@/types/types'
+import { QueryParams, ColumnMeta } from '@/types/types'
 import { getEmployees } from '@/api/employees'
 
 interface TEmployee {
@@ -22,10 +22,6 @@ interface TEmployee {
   employeeId: number
   contactAvatar?: string
 }
-interface TColumnMeta {
-  field: string
-  header: string
-}
 
 const Employees: FC = (): ReactElement => {
   const [employees, setEmployees] = useState<TEmployee[]>([])
@@ -36,7 +32,7 @@ const Employees: FC = (): ReactElement => {
   const LIMIT_COUNT = 20
   const AVATAR_API_PATH = 'https://avatars.dicebear.com/v2/initials/'
 
-  const columns: TColumnMeta[] = [
+  const columns: ColumnMeta[] = [
     { field: 'title', header: 'Title' },
     { field: 'city', header: 'City' },
     { field: 'homePhone', header: 'Phone' },

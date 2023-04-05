@@ -3,8 +3,8 @@ import { Column } from 'primereact/column'
 import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
 import { getOrders } from '@/api/orders'
-import { QueryParams } from '@/types/types'
 import { formatDate } from '@/services/dayjs-service'
+import { QueryParams, ColumnMeta } from '@/types/types'
 import { OrdersContent, OrdersTitle, ColumnLink } from './Orders.styles'
 
 interface Order {
@@ -17,10 +17,6 @@ interface Order {
   totalPrice: number
   shippedDate: string
   shipCountry: string
-}
-interface ColumnMeta {
-  field: string
-  header: string
 }
 
 const Orders: FC = (): ReactElement => {

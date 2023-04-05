@@ -18,6 +18,7 @@ import {
   OrderTableTitle,
   OrderTableWrapper,
 } from './Order.styles'
+import { ColumnMeta } from '@/types/types'
 import { getOrderById } from '@/api/orders'
 import { formatDate } from '@/services/dayjs-service'
 import { capitalizeFromCamelCase } from '@/services/string-service'
@@ -55,10 +56,6 @@ interface OrderDates {
   orderDate?: string
   shippedDate?: string
   requiredDate?: string
-}
-interface ColumnMeta {
-  field: string
-  header: string
 }
 
 const Order: FC = (): ReactElement => {

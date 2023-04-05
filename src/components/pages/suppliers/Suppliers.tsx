@@ -2,7 +2,7 @@ import { FC, ReactElement, useState, useEffect } from 'react'
 import { Column } from 'primereact/column'
 import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
-import { QueryParams } from '@/types/types'
+import { QueryParams, ColumnMeta } from '@/types/types'
 import { getSupplies } from '@/api/suppliers'
 import {
   ColumnLink,
@@ -21,10 +21,6 @@ interface Supplier {
   contactName: string
   contactTitle: string
   contactAvatar?: string
-}
-interface ColumnMeta {
-  field: string
-  header: string
 }
 
 const Suppliers: FC = (): ReactElement => {
