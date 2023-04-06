@@ -78,32 +78,38 @@ const Products: FC = (): ReactElement => {
 
   return (
     <ProductsContent>
-      <ProductsTitle>Products</ProductsTitle>
-      <DataTable
-        first={first}
-        value={products}
-        rows={LIMIT_COUNT}
-        totalRecords={totalRecords}
-        loading={isLoadingProducts}
-        size="small"
-        lazy
-        paginator
-        stripedRows
-        onPage={handlePage}
-      >
-        <Column
-          body={productBodyTemplate}
-          field="productName"
-          header="Name"
-        />
-        {columns.map((col) => (
-          <Column
-            key={col.field}
-            field={col.field}
-            header={col.header}
-          />
-        ))}
-      </DataTable>
+      {!isLoadingProducts ? (
+        <>
+          <ProductsTitle>Products</ProductsTitle>
+          <DataTable
+            first={first}
+            value={products}
+            rows={LIMIT_COUNT}
+            totalRecords={totalRecords}
+            loading={isLoadingProducts}
+            size="small"
+            lazy
+            paginator
+            stripedRows
+            onPage={handlePage}
+          >
+            <Column
+              body={productBodyTemplate}
+              field="productName"
+              header="Name"
+            />
+            {columns.map((col) => (
+              <Column
+                key={col.field}
+                field={col.field}
+                header={col.header}
+              />
+            ))}
+          </DataTable>
+        </>
+      ) : (
+        <p>Loading...</p>
+      )}
     </ProductsContent>
   )
 }

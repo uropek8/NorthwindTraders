@@ -81,7 +81,7 @@ const Product: FC = (): ReactElement => {
       <ProductHeader>
         <ProductTitle>
           <i className="pi pi-id-card"></i>
-          Supplier information
+          Product information
         </ProductTitle>
       </ProductHeader>
       <ProductContent>
