@@ -1,4 +1,4 @@
-import{N as s,j as e}from"./index-1a7734d5.js";import{s as o}from"./styled-components.browser.esm-2626aca1.js";const i=o.div`
+import{N as s,j as e}from"./index-be2f80e1.js";import{s as o}from"./styled-components.browser.esm-ba6426bd.js";const i=o.div`
   padding: 15px;
 `,r=o.h2`
   margin-top: 0;
