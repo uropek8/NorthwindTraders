@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect } from 'react'
+import { FC, ReactElement, useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 
 import {
@@ -14,7 +14,9 @@ import {
   ProductAction,
   ProductContent,
 } from './Product.styles'
+import { ISqlMetric } from '@/types/types'
 import { getProductById } from '@/api/products'
+import LogContext from '@/contex/log/LogContext'
 import { capitalizeFromCamelCase } from '@/services/string-service'
 
 interface Product {
@@ -32,8 +34,9 @@ interface Product {
 }
 
 const Product: FC = (): ReactElement => {
-  const [product, setProduct] = useState<Product | null>(null)
+  const [product, setProduct] = useState<Partial<Product>>({})
   const [isLoadingProduct, setIsLoadingProduct] = useState(false)
+  const { metrics, updateLogMetrics } = useContext(LogContext)
   const { id } = useParams()
   const navigate = useNavigate()
   const MAIN_KEYS_LIST = [
@@ -60,9 +63,11 @@ const Product: FC = (): ReactElement => {
 
     try {
       const response = await getProductById(id)
-      const { product: productData } = response.data
+      const { product: productData, sqlLog } = response.data
+      const preparedSqlLog = getPreparedSqlLogs(sqlLog, 1)
 
       setProduct(productData)
+      updateSqlMetrics(preparedSqlLog)
 
       return Promise.resolve()
     } catch (error) {
@@ -76,76 +81,115 @@ const Product: FC = (): ReactElement => {
     navigate(-1)
   }
 
+  const updateSqlMetrics = (logs: Partial<ISqlMetric[]>) => {
+    if (!logs.length) return
+
+    const updatedLogs = metrics.length ? [...logs, ...metrics] : [...logs]
+    const lastLogs = updatedLogs.slice(0, 5)
+
+    updateLogMetrics(lastLogs)
+  }
+
+  const getPreparedSqlLogs = (logs: ISqlMetric[], count: number) => {
+    if (!logs.length) return []
+
+    return logs.map((log) => {
+      const queryLog = log?.querySqlLog || ''
+
+      return {
+        ...log,
+        resultsCount: queryLog.includes('select count') ? 1 : count,
+      }
+    })
+  }
+
   return (
-    <ProductBox>
-      <ProductHeader>
-        <ProductTitle>
-          <i className="pi pi-id-card"></i>
-          Product information
-        </ProductTitle>
-      </ProductHeader>
-      <ProductContent>
-        {isLoadingProduct && <p>Loading...</p>}
-        <ProductRow>
-          <ProductList>
-            {product &&
-              Object.keys(product).map((key) => {
-                if (
-                  !MAIN_KEYS_LIST.includes(key) ||
-                  product[key as keyof Product] === undefined
-                )
-                  return null
+    <>
+      {isLoadingProduct ? (
+        <p>Loading...</p>
+      ) : (
+        <ProductBox>
+          <ProductHeader>
+            <ProductTitle>
+              <i className="pi pi-id-card"></i>
+              Product information
+            </ProductTitle>
+          </ProductHeader>
+          <ProductContent>
+            {Object.keys(product).length > 0 ? (
+              <>
+                <ProductRow>
+                  <ProductList>
+                    {product &&
+                      Object.keys(product).map((key) => {
+                        if (
+                          !MAIN_KEYS_LIST.includes(key) ||
+                          product[key as keyof Product] === undefined
+                        )
+                          return null
 
-                if (key === 'supplier') {
-                  return (
-                    <ProductItem key={key}>
-                      <ProductLabel>
-                        {capitalizeFromCamelCase(key)}
-                      </ProductLabel>
-                      <ProductLink to={`/supplier/${product.supplierId}`}>
-                        {product[key as keyof Product]}
-                      </ProductLink>
-                    </ProductItem>
-                  )
-                }
+                        if (key === 'supplier') {
+                          return (
+                            <ProductItem key={key}>
+                              <ProductLabel>
+                                {capitalizeFromCamelCase(key)}
+                              </ProductLabel>
+                              <ProductLink
+                                to={`/supplier/${product.supplierId}`}
+                              >
+                                {product[key as keyof Product]}
+                              </ProductLink>
+                            </ProductItem>
+                          )
+                        }
 
-                return (
-                  <ProductItem key={key}>
-                    <ProductLabel>{capitalizeFromCamelCase(key)}</ProductLabel>
-                    {product[key as keyof Product]}
-                  </ProductItem>
-                )
-              })}
-          </ProductList>
-        </ProductRow>
-        <ProductRow>
-          <ProductList>
-            {product &&
-              Object.keys(product).map((key) => {
-                if (
-                  !SECONDARY_KEYS_LIST.includes(key) ||
-                  product[key as keyof Product] === undefined
-                )
-                  return null
+                        return (
+                          <ProductItem key={key}>
+                            <ProductLabel>
+                              {capitalizeFromCamelCase(key)}
+                            </ProductLabel>
+                            {product[key as keyof Product]}
+                          </ProductItem>
+                        )
+                      })}
+                  </ProductList>
+                </ProductRow>
+                <ProductRow>
+                  <ProductList>
+                    {product &&
+                      Object.keys(product).map((key) => {
+                        if (
+                          !SECONDARY_KEYS_LIST.includes(key) ||
+                          product[key as keyof Product] === undefined
+                        )
+                          return null
 
-                return (
-                  <ProductItem key={key}>
-                    <ProductLabel>{capitalizeFromCamelCase(key)}</ProductLabel>
-                    {product[key as keyof Product]}
-                  </ProductItem>
-                )
-              })}
-          </ProductList>
-        </ProductRow>
-      </ProductContent>
-      <ProductAction>
-        <ProductBtn
-          severity="danger"
-          label="Go back"
-          onClick={handleClickBack}
-        />
-      </ProductAction>
-    </ProductBox>
+                        return (
+                          <ProductItem key={key}>
+                            <ProductLabel>
+                              {capitalizeFromCamelCase(key)}
+                            </ProductLabel>
+                            {product[key as keyof Product]}
+                          </ProductItem>
+                        )
+                      })}
+                  </ProductList>
+                </ProductRow>
+              </>
+            ) : (
+              <p>Empty data</p>
+            )}
+          </ProductContent>
+          <ProductAction>
+            <ProductBtn
+              severity="danger"
+              label="Go back"
+              onClick={handleClickBack}
+            />
+          </ProductAction>
+        </ProductBox>
+      )}
+    </>
   )
 }
 

@@ -1,5 +1,8 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
+
+import { ISqlMetric } from '@/types/types'
+import LogContext from '@/contex/log/LogContext'
 
 const Home = lazy(() => import('@/components/pages/home/Home'))
 const Layout = lazy(() => import('@/components/layout/Layout'))
@@ -17,65 +20,74 @@ const Dashboard = lazy(() => import('@/components/pages/dashboard/Dashboard'))
 const Suppliers = lazy(() => import('@/components/pages/suppliers/Suppliers'))
 
 const App = () => {
+  const [metrics, setMetrics] = useState<Partial<ISqlMetric[]>>([])
+
   return (
     <>
       <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route
-              path="/"
-              element={<Home />}
-            />
-            <Route
-              path="/dashboard"
-              element={<Dashboard />}
-            />
-            <Route
-              path="/suppliers"
-              element={<Suppliers />}
-            />
-            <Route
-              path="/supplier/:id"
-              element={<Supplier />}
-            />
-            <Route
-              path="/products"
-              element={<Products />}
-            />
-            <Route
-              path="/product/:id"
-              element={<Product />}
-            />
-            <Route
-              path="/orders"
-              element={<Orders />}
-            />
-            <Route
-              path="/order/:id"
-              element={<Order />}
-            />
-            <Route
-              path="/employees"
-              element={<Employees />}
-            />
-            <Route
-              path="/employee/:id"
-              element={<Employee />}
-            />
-            <Route
-              path="/customers"
-              element={<Customers />}
-            />
-            <Route
-              path="/customer/:id"
-              element={<Customer />}
-            />
-            <Route
-              path="/search"
-              element={<Search />}
-            />
-          </Route>
-        </Routes>
+        <LogContext.Provider
+          value={{
+            metrics,
+            updateLogMetrics: setMetrics,
+          }}
+        >
+          <Routes>
+            <Route element={<Layout />}>
+              <Route
+                path="/"
+                element={<Home />}
+              />
+              <Route
+                path="/dashboard"
+                element={<Dashboard />}
+              />
+              <Route
+                path="/suppliers"
+                element={<Suppliers />}
+              />
+              <Route
+                path="/supplier/:id"
+                element={<Supplier />}
+              />
+              <Route
+                path="/products"
+                element={<Products />}
+              />
+              <Route
+                path="/product/:id"
+                element={<Product />}
+              />
+              <Route
+                path="/orders"
+                element={<Orders />}
+              />
+              <Route
+                path="/order/:id"
+                element={<Order />}
+              />
+              <Route
+                path="/employees"
+                element={<Employees />}
+              />
+              <Route
+                path="/employee/:id"
+                element={<Employee />}
+              />
+              <Route
+                path="/customers"
+                element={<Customers />}
+              />
+              <Route
+                path="/customer/:id"
+                element={<Customer />}
+              />
+              <Route
+                path="/search"
+                element={<Search />}
+              />
+            </Route>
+          </Routes>
+        </LogContext.Provider>
       </Suspense>
     </>
   )

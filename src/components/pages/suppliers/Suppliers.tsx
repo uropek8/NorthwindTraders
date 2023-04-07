@@ -1,9 +1,7 @@
-import { FC, ReactElement, useState, useEffect } from 'react'
+import { FC, ReactElement, useState, useEffect, useContext } from 'react'
 import { Column } from 'primereact/column'
 import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
-import { QueryParams, ColumnMeta } from '@/types/types'
-import { getSupplies } from '@/api/suppliers'
 import {
   ColumnLink,
   ColumnImage,
@@ -11,6 +9,9 @@ import {
   SuppliersContent,
   ColumnImageWrapper,
 } from './Suppliers.styles'
+import { getSupplies } from '@/api/suppliers'
+import LogContext from '@/contex/log/LogContext'
+import { QueryParams, ColumnMeta, ISqlMetric } from '@/types/types'
 
 interface Supplier {
   id: string
@@ -29,6 +30,7 @@ const Suppliers: FC = (): ReactElement => {
   const [isLoadingSuppliers, setIsLoadingSuppliers] = useState<boolean>(true)
   const [page, setPage] = useState<number>(1)
   const [first, setFirst] = useState<number>(0)
+  const { metrics, updateLogMetrics } = useContext(LogContext)
   const LIMIT_COUNT = 20
   const AVATAR_API_PATH = 'https://avatars.dicebear.com/v2/initials/'
 
@@ -60,6 +62,28 @@ const Suppliers: FC = (): ReactElement => {
     return `${AVATAR_API_PATH}${avatarPath}.svg`
   }
 
+  const updateSqlMetrics = (logs: Partial<ISqlMetric[]>) => {
+    if (!logs.length) return
+
+    const updatedLogs = metrics.length ? [...logs, ...metrics] : [...logs]
+    const lastLogs = updatedLogs.slice(0, 5)
+
+    updateLogMetrics(lastLogs)
+  }
+
+  const getPreparedSqlLogs = (logs: ISqlMetric[], count: number) => {
+    if (!logs.length) return []
+
+    return logs.map((log) => {
+      const queryLog = log?.querySqlLog || ''
+
+      return {
+        ...log,
+        resultsCount: queryLog.includes('select count') ? 1 : count,
+      }
+    })
+  }
+
   const fetchSuppliers = async () => {
     setIsLoadingSuppliers(true)
 
@@ -70,11 +94,16 @@ const Suppliers: FC = (): ReactElement => {
       }
 
       const response = await getSupplies(params)
-      const { supplies, totalElementsFromDB: records } = response.data
+      const { supplies, totalElementsFromDB: records, sqlLog } = response.data
       const preparedSuppliers = getPreparedSuppliers(supplies)
+      const preparedSqlLog = getPreparedSqlLogs(
+        sqlLog,
+        preparedSuppliers.length
+      )
 
-      setSuppliers(preparedSuppliers)
       setTotalRecords(records)
+      setSuppliers(preparedSuppliers)
+      updateSqlMetrics(preparedSqlLog)
 
       return Promise.resolve()
     } catch (error) {
@@ -113,33 +142,39 @@ const Suppliers: FC = (): ReactElement => {
 
   return (
     <SuppliersContent>
-      <SuppliersTitle>Suppliers</SuppliersTitle>
-      <DataTable
-        first={first}
-        value={suppliers}
-        rows={LIMIT_COUNT}
-        totalRecords={totalRecords}
-        loading={isLoadingSuppliers}
-        size="small"
-        lazy
-        paginator
-        stripedRows
-        onPage={handlePage}
-      >
-        <Column body={avatarBodyTemplate} />
-        <Column
-          body={companyBodyTemplate}
-          field="companyName"
-          header="Company"
-        />
-        {columns.map((col) => (
-          <Column
-            key={col.field}
-            field={col.field}
-            header={col.header}
-          />
-        ))}
-      </DataTable>
+      {!isLoadingSuppliers ? (
+        <>
+          <SuppliersTitle>Suppliers</SuppliersTitle>
+          <DataTable
+            first={first}
+            value={suppliers}
+            rows={LIMIT_COUNT}
+            totalRecords={totalRecords}
+            loading={isLoadingSuppliers}
+            paginator={suppliers.length > 0}
+            size="small"
+            lazy
+            stripedRows
+            onPage={handlePage}
+          >
+            <Column body={avatarBodyTemplate} />
+            <Column
+              body={companyBodyTemplate}
+              field="companyName"
+              header="Company"
+            />
+            {columns.map((col) => (
+              <Column
+                key={col.field}
+                field={col.field}
+                header={col.header}
+              />
+            ))}
+          </DataTable>
+        </>
+      ) : (
+        <p>Loading...</p>
+      )}
     </SuppliersContent>
   )
 }
