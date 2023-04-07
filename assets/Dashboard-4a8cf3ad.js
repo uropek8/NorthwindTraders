@@ -1,4 +1,4 @@
-import{r as a,L as N,j as t}from"./index-2b51ce5e.js";import{s as n}from"./styled-components.browser.esm-21c048a6.js";import{i as E}from"./axios-51d3c6c4.js";const K=n.div`
+import{r as a,L as N,j as t}from"./index-67b73d2d.js";import{s as n}from"./styled-components.browser.esm-1ad48312.js";import{i as E}from"./axios-51d3c6c4.js";const K=n.div`
   display: flex;
   flex-direction: column;
   padding: 25px;
