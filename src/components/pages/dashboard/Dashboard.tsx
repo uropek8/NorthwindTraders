@@ -13,9 +13,9 @@ import {
   DashboardInfoItem,
   DashboardListText,
 } from './Dashboard.styles'
+import { getNearByInfo } from '@/api/near-by'
 import LogContext from '@/contex/log/LogContext'
 import { getGeolocationInfo } from '@/api/geolocation'
-import { getNearByInfo } from '@/api/near-by'
 import { ISqlMetric, IGeolocationParams, INearByParams } from '@/types/types'
 
 interface IMetric {

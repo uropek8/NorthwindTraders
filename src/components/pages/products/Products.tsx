@@ -7,7 +7,7 @@ import LogContext from '@/contex/log/LogContext'
 import { QueryParams, ColumnMeta, ISqlMetric } from '@/types/types'
 import { ProductsContent, ProductsTitle, ColumnLink } from './Products.styles'
 
-interface Product {
+interface TProduct {
   id: string
   productId: number
   unitPrice: string
@@ -18,7 +18,7 @@ interface Product {
 }
 
 const Products: FC = (): ReactElement => {
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<TProduct[]>([])
   const [totalRecords, setTotalRecords] = useState<number>(0)
   const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(true)
   const [page, setPage] = useState<number>(1)
@@ -89,7 +89,7 @@ const Products: FC = (): ReactElement => {
     })
   }
 
-  const productBodyTemplate = (row: Product) => {
+  const productBodyTemplate = (row: TProduct) => {
     return (
       <ColumnLink to={`/product/${row.productId}`}>
         {row.productName}
@@ -116,9 +116,9 @@ const Products: FC = (): ReactElement => {
             rows={LIMIT_COUNT}
             totalRecords={totalRecords}
             loading={isLoadingProducts}
+            paginator={products.length > 0}
             size="small"
             lazy
-            paginator
             stripedRows
             onPage={handlePage}
           >

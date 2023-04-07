@@ -19,7 +19,7 @@ import { getProductById } from '@/api/products'
 import LogContext from '@/contex/log/LogContext'
 import { capitalizeFromCamelCase } from '@/services/string-service'
 
-interface Product {
+interface TProduct {
   id: string
   supplier: string
   unitPrice: string
@@ -32,18 +32,32 @@ interface Product {
   productName: string
   quantityPerUnit: string
 }
+interface TMainRow {
+  supplier: string
+  unitPrice: string
+  productName: string
+  quantityPerUnit: string
+}
+interface TSecondaryRow {
+  unitsInStock: number
+  unitsOnOrder: number
+  reorderLevel: number
+  discontinued: number
+}
 
 const Product: FC = (): ReactElement => {
-  const [product, setProduct] = useState<Partial<Product>>({})
+  const [product, setProduct] = useState<Partial<TProduct>>({})
   const [isLoadingProduct, setIsLoadingProduct] = useState(false)
+  const [mainRow, setMainRow] = useState<Partial<TMainRow>>({})
+  const [secondaryRow, setSecondaryRow] = useState<Partial<TSecondaryRow>>({})
   const { metrics, updateLogMetrics } = useContext(LogContext)
   const { id } = useParams()
   const navigate = useNavigate()
   const MAIN_KEYS_LIST = [
-    'supplier',
-    'unitPrice',
     'productName',
+    'supplier',
     'quantityPerUnit',
+    'unitPrice',
   ]
   const SECONDARY_KEYS_LIST = [
     'unitsInStock',
@@ -55,6 +69,10 @@ const Product: FC = (): ReactElement => {
   useEffect(() => {
     fetchProduct()
   }, [])
+
+  useEffect(() => {
+    initalContentRows()
+  }, [product])
 
   const fetchProduct = async () => {
     if (!id) return
@@ -75,6 +93,29 @@ const Product: FC = (): ReactElement => {
     } finally {
       setIsLoadingProduct(false)
     }
+  }
+
+  const initalContentRows = () => {
+    if (!product) return
+
+    const mainRowContent = getCurrentRow(MAIN_KEYS_LIST)
+    const secondaryRowContent = getCurrentRow(SECONDARY_KEYS_LIST)
+
+    setMainRow(mainRowContent)
+    setSecondaryRow(secondaryRowContent)
+  }
+
+  const getCurrentRow = (keys: string[]) => {
+    return keys.reduce((acc, key) => {
+      if (!product[key as keyof TProduct]) return acc
+
+      acc = {
+        ...acc,
+        [key]: product[key as keyof TProduct],
+      }
+
+      return acc
+    }, {})
   }
 
   const handleClickBack = () => {
@@ -120,14 +161,8 @@ const Product: FC = (): ReactElement => {
               <>
                 <ProductRow>
                   <ProductList>
-                    {product &&
-                      Object.keys(product).map((key) => {
-                        if (
-                          !MAIN_KEYS_LIST.includes(key) ||
-                          product[key as keyof Product] === undefined
-                        )
-                          return null
-
+                    {Object.keys(mainRow).length > 0 &&
+                      Object.keys(mainRow).map((key) => {
                         if (key === 'supplier') {
                           return (
                             <ProductItem key={key}>
@@ -137,7 +172,7 @@ const Product: FC = (): ReactElement => {
                               <ProductLink
                                 to={`/supplier/${product.supplierId}`}
                               >
-                                {product[key as keyof Product]}
+                                {product[key as keyof TProduct]}
                               </ProductLink>
                             </ProductItem>
                           )
@@ -148,7 +183,8 @@ const Product: FC = (): ReactElement => {
                             <ProductLabel>
                               {capitalizeFromCamelCase(key)}
                             </ProductLabel>
-                            {product[key as keyof Product]}
+                            {key === 'unitPrice' ? '$' : ''}
+                            {product[key as keyof TProduct]}
                           </ProductItem>
                         )
                       })}
@@ -156,20 +192,14 @@ const Product: FC = (): ReactElement => {
                 </ProductRow>
                 <ProductRow>
                   <ProductList>
-                    {product &&
-                      Object.keys(product).map((key) => {
-                        if (
-                          !SECONDARY_KEYS_LIST.includes(key) ||
-                          product[key as keyof Product] === undefined
-                        )
-                          return null
-
+                    {Object.keys(secondaryRow).length > 0 &&
+                      Object.keys(secondaryRow).map((key) => {
                         return (
                           <ProductItem key={key}>
                             <ProductLabel>
                               {capitalizeFromCamelCase(key)}
                             </ProductLabel>
-                            {product[key as keyof Product]}
+                            {product[key as keyof TProduct]}
                           </ProductItem>
                         )
                       })}
