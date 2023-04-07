@@ -10,10 +10,11 @@ import {
   ColumnImageWrapper,
 } from './Suppliers.styles'
 import { getSupplies } from '@/api/suppliers'
+import { getAvatarPath } from '@/services/utils'
 import LogContext from '@/contex/log/LogContext'
 import { QueryParams, ColumnMeta, ISqlMetric } from '@/types/types'
 
-interface Supplier {
+interface TSupplier {
   id: string
   city: string
   country: string
@@ -25,15 +26,13 @@ interface Supplier {
 }
 
 const Suppliers: FC = (): ReactElement => {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
+  const [suppliers, setSuppliers] = useState<TSupplier[]>([])
   const [totalRecords, setTotalRecords] = useState<number>(0)
   const [isLoadingSuppliers, setIsLoadingSuppliers] = useState<boolean>(true)
   const [page, setPage] = useState<number>(1)
   const [first, setFirst] = useState<number>(0)
   const { metrics, updateLogMetrics } = useContext(LogContext)
   const LIMIT_COUNT = 20
-  const AVATAR_API_PATH = 'https://avatars.dicebear.com/v2/initials/'
-
   const columns: ColumnMeta[] = [
     { field: 'contactName', header: 'Contact' },
     { field: 'contactTitle', header: 'Title' },
@@ -44,45 +43,6 @@ const Suppliers: FC = (): ReactElement => {
   useEffect(() => {
     fetchSuppliers()
   }, [page])
-
-  const getPreparedSuppliers = (supplies: Supplier[]) => {
-    if (!supplies.length) return []
-
-    return supplies.map((supplie) => {
-      return {
-        ...supplie,
-        contactAvatar: getPreparedAvatarPath(supplie.contactName),
-      }
-    })
-  }
-
-  const getPreparedAvatarPath = (avatar: string) => {
-    const avatarPath = encodeURIComponent(avatar)
-
-    return `${AVATAR_API_PATH}${avatarPath}.svg`
-  }
-
-  const updateSqlMetrics = (logs: Partial<ISqlMetric[]>) => {
-    if (!logs.length) return
-
-    const updatedLogs = metrics.length ? [...logs, ...metrics] : [...logs]
-    const lastLogs = updatedLogs.slice(0, 5)
-
-    updateLogMetrics(lastLogs)
-  }
-
-  const getPreparedSqlLogs = (logs: ISqlMetric[], count: number) => {
-    if (!logs.length) return []
-
-    return logs.map((log) => {
-      const queryLog = log?.querySqlLog || ''
-
-      return {
-        ...log,
-        resultsCount: queryLog.includes('select count') ? 1 : count,
-      }
-    })
-  }
 
   const fetchSuppliers = async () => {
     setIsLoadingSuppliers(true)
@@ -113,7 +73,40 @@ const Suppliers: FC = (): ReactElement => {
     }
   }
 
-  const avatarBodyTemplate = (row: Supplier) => {
+  const getPreparedSuppliers = (supplies: TSupplier[]) => {
+    if (!supplies.length) return []
+
+    return supplies.map((supplie) => {
+      return {
+        ...supplie,
+        contactAvatar: getAvatarPath(supplie.contactName),
+      }
+    })
+  }
+
+  const updateSqlMetrics = (logs: Partial<ISqlMetric[]>) => {
+    if (!logs.length) return
+
+    const updatedLogs = metrics.length ? [...logs, ...metrics] : [...logs]
+    const lastLogs = updatedLogs.slice(0, 5)
+
+    updateLogMetrics(lastLogs)
+  }
+
+  const getPreparedSqlLogs = (logs: ISqlMetric[], count: number) => {
+    if (!logs.length) return []
+
+    return logs.map((log) => {
+      const queryLog = log?.querySqlLog || ''
+
+      return {
+        ...log,
+        resultsCount: queryLog.includes('select count') ? 1 : count,
+      }
+    })
+  }
+
+  const avatarBodyTemplate = (row: TSupplier) => {
     return (
       <ColumnImageWrapper>
         <ColumnImage
@@ -124,7 +117,7 @@ const Suppliers: FC = (): ReactElement => {
     )
   }
 
-  const companyBodyTemplate = (row: Supplier) => {
+  const companyBodyTemplate = (row: TSupplier) => {
     return (
       <ColumnLink to={`/supplier/${row.supplierId}`}>
         {row.companyName}

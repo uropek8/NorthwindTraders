@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect } from 'react'
+import { FC, ReactElement, useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 
 import {
@@ -14,6 +14,8 @@ import {
   EmployeeHeader,
   EmployeeContent,
 } from './Employee.styles'
+import { ISqlMetric } from '@/types/types'
+import LogContext from '@/contex/log/LogContext'
 import { getEmployeeById } from '@/api/employees'
 import { capitalizeFromCamelCase } from '@/services/string-service'
 
@@ -39,7 +41,7 @@ interface TEmployeeReports {
   name: string
   employeeId: number
 }
-interface TMainRowEmployee {
+interface TMainRow {
   name: string
   city: string
   title: string
@@ -48,7 +50,7 @@ interface TMainRowEmployee {
   birthDate: string
   titleOfCourtesy: string
 }
-interface TSecondaryRowEmployee {
+interface TSecondaryRow {
   notes: string
   country: string
   homePhone: string
@@ -58,13 +60,10 @@ interface TSecondaryRowEmployee {
 
 const Employee: FC = (): ReactElement => {
   const [employee, setEmployee] = useState<Partial<TEmployee>>({})
-  const [mainRowEmployee, setMainRowEmployee] = useState<
-    Partial<TMainRowEmployee>
-  >({})
-  const [secondaryRowEmployee, setSecondaryRowEmployee] = useState<
-    Partial<TSecondaryRowEmployee>
-  >({})
+  const [mainRow, setMainRow] = useState<Partial<TMainRow>>({})
+  const [secondaryRow, setSecondaryRow] = useState<Partial<TSecondaryRow>>({})
   const [isLoadingEmployee, setIsLoadingEmployee] = useState(false)
+  const { metrics, updateLogMetrics } = useContext(LogContext)
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -94,22 +93,63 @@ const Employee: FC = (): ReactElement => {
   }, [location])
 
   useEffect(() => {
-    initalEmployeeRows()
+    initalContentRows()
   }, [employee])
 
-  const initalEmployeeRows = () => {
-    if (!employee) return
+  const fetchEmployee = async () => {
+    if (!id) return
 
-    const mainRow = getCurrentRowEmployee(MAIN_KEYS_LIST)
-    const secondaryRow = getCurrentRowEmployee(SECONDARY_KEYS_LIST)
+    setIsLoadingEmployee(true)
 
-    setMainRowEmployee(mainRow)
-    setSecondaryRowEmployee(secondaryRow)
+    try {
+      const response = await getEmployeeById(id)
+      const { employee: employeeData, sqlLog } = response.data
+      const preparedSqlLog = getPreparedSqlLogs(sqlLog, 1)
+
+      setEmployee(employeeData)
+      updateSqlMetrics(preparedSqlLog)
+
+      return Promise.resolve()
+    } catch (error) {
+      return Promise.reject(error)
+    } finally {
+      setIsLoadingEmployee(false)
+    }
   }
 
-  const getCurrentRowEmployee = (keys: string[]) => {
-    if (!employee || !Object.keys(employee).length) return {}
+  const initalContentRows = () => {
+    if (!employee) return
 
+    const mainRowContent = getCurrentRow(MAIN_KEYS_LIST)
+    const secondaryRowContent = getCurrentRow(SECONDARY_KEYS_LIST)
+
+    setMainRow(mainRowContent)
+    setSecondaryRow(secondaryRowContent)
+  }
+
+  const updateSqlMetrics = (logs: Partial<ISqlMetric[]>) => {
+    if (!logs.length) return
+
+    const updatedLogs = metrics.length ? [...logs, ...metrics] : [...logs]
+    const lastLogs = updatedLogs.slice(0, 5)
+
+    updateLogMetrics(lastLogs)
+  }
+
+  const getPreparedSqlLogs = (logs: ISqlMetric[], count: number) => {
+    if (!logs.length) return []
+
+    return logs.map((log) => {
+      const queryLog = log?.querySqlLog || ''
+
+      return {
+        ...log,
+        resultsCount: queryLog.includes('select count') ? 1 : count,
+      }
+    })
+  }
+
+  const getCurrentRow = (keys: string[]) => {
     return keys.reduce((acc, key) => {
       if (!employee[key as keyof TEmployee]) return acc
 
@@ -120,25 +160,6 @@ const Employee: FC = (): ReactElement => {
 
       return acc
     }, {})
-  }
-
-  const fetchEmployee = async () => {
-    if (!id) return
-
-    setIsLoadingEmployee(true)
-
-    try {
-      const response = await getEmployeeById(id)
-      const { employee: employeeData } = response.data
-
-      setEmployee(employeeData)
-
-      return Promise.resolve()
-    } catch (error) {
-      return Promise.reject(error)
-    } finally {
-      setIsLoadingEmployee(false)
-    }
   }
 
   const handleClickBack = () => {
@@ -160,33 +181,29 @@ const Employee: FC = (): ReactElement => {
           <>
             <EmployeeRow>
               <EmployeeList>
-                {Object.keys(mainRowEmployee).length > 0 &&
-                  Object.keys(mainRowEmployee).map((key) => {
+                {Object.keys(mainRow).length > 0 &&
+                  Object.keys(mainRow).map((key) => {
                     return (
                       <EmployeeItem key={key}>
                         <EmployeeLabel>
                           {capitalizeFromCamelCase(key)}
                         </EmployeeLabel>
-                        {mainRowEmployee[key as keyof TMainRowEmployee]}
+                        {mainRow[key as keyof TMainRow]}
                       </EmployeeItem>
                     )
                   })}
               </EmployeeList>
             </EmployeeRow>
             <EmployeeRow>
-              {Object.keys(secondaryRowEmployee).length > 0 && (
+              {Object.keys(secondaryRow).length > 0 && (
                 <EmployeeList>
-                  {Object.keys(secondaryRowEmployee).map((key) => {
+                  {Object.keys(secondaryRow).map((key) => {
                     return (
                       <EmployeeItem key={key}>
                         <EmployeeLabel>
                           {capitalizeFromCamelCase(key)}
                         </EmployeeLabel>
-                        {
-                          secondaryRowEmployee[
-                            key as keyof TSecondaryRowEmployee
-                          ]
-                        }
+                        {secondaryRow[key as keyof TSecondaryRow]}
                       </EmployeeItem>
                     )
                   })}

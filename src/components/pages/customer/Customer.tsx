@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect } from 'react'
+import { FC, ReactElement, useState, useEffect, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 
 import {
@@ -13,6 +13,8 @@ import {
   CustomerHeader,
   CustomerContent,
 } from './Customer.styles'
+import { ISqlMetric } from '@/types/types'
+import LogContext from '@/contex/log/LogContext'
 import { getCustomerById } from '@/api/customers'
 import { capitalizeFromCamelCase } from '@/services/string-service'
 
@@ -30,14 +32,14 @@ interface TCustomer {
   contactName: string
   contactTitle: string
 }
-interface TMainRowCustomer {
+interface TMainRow {
   city: string
   address: string
   companyName: string
   contactName: string
   contactTitle: string
 }
-interface TSecondaryRowCustomer {
+interface TSecondaryRow {
   fax: string
   region: string
   postalCode: string
@@ -47,13 +49,10 @@ interface TSecondaryRowCustomer {
 
 const Customer: FC = (): ReactElement => {
   const [customer, setCustomer] = useState<Partial<TCustomer>>({})
-  const [mainRowCustomer, setMainRowCustomer] = useState<
-    Partial<TMainRowCustomer>
-  >({})
-  const [secondaryRowCustomer, setSecondaryRowCustomer] = useState<
-    Partial<TSecondaryRowCustomer>
-  >({})
+  const [mainRow, setMainRow] = useState<Partial<TMainRow>>({})
+  const [secondaryRow, setSecondaryRow] = useState<Partial<TSecondaryRow>>({})
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(false)
+  const { metrics, updateLogMetrics } = useContext(LogContext)
   const { id } = useParams()
   const navigate = useNavigate()
   const MAIN_KEYS_LIST = [
@@ -76,22 +75,63 @@ const Customer: FC = (): ReactElement => {
   }, [])
 
   useEffect(() => {
-    initalCustomerRows()
+    initalContentRows()
   }, [customer])
 
-  const initalCustomerRows = () => {
-    if (!customer) return
+  const fetchCustomer = async () => {
+    if (!id) return
 
-    const mainRow = getCurrentRowCustomer(MAIN_KEYS_LIST)
-    const secondaryRow = getCurrentRowCustomer(SECONDARY_KEYS_LIST)
+    setIsLoadingCustomer(true)
 
-    setMainRowCustomer(mainRow)
-    setSecondaryRowCustomer(secondaryRow)
+    try {
+      const response = await getCustomerById(id)
+      const { customer: customerData, sqlLog } = response.data
+      const preparedSqlLog = getPreparedSqlLogs(sqlLog, 1)
+
+      setCustomer(customerData)
+      updateSqlMetrics(preparedSqlLog)
+
+      return Promise.resolve()
+    } catch (error) {
+      return Promise.reject(error)
+    } finally {
+      setIsLoadingCustomer(false)
+    }
   }
 
-  const getCurrentRowCustomer = (keys: string[]) => {
-    if (!customer || !Object.keys(customer).length) return {}
+  const initalContentRows = () => {
+    if (!customer) return
 
+    const mainRowContent = getCurrentRow(MAIN_KEYS_LIST)
+    const secondaryRowContent = getCurrentRow(SECONDARY_KEYS_LIST)
+
+    setMainRow(mainRowContent)
+    setSecondaryRow(secondaryRowContent)
+  }
+
+  const updateSqlMetrics = (logs: Partial<ISqlMetric[]>) => {
+    if (!logs.length) return
+
+    const updatedLogs = metrics.length ? [...logs, ...metrics] : [...logs]
+    const lastLogs = updatedLogs.slice(0, 5)
+
+    updateLogMetrics(lastLogs)
+  }
+
+  const getPreparedSqlLogs = (logs: ISqlMetric[], count: number) => {
+    if (!logs.length) return []
+
+    return logs.map((log) => {
+      const queryLog = log?.querySqlLog || ''
+
+      return {
+        ...log,
+        resultsCount: queryLog.includes('select count') ? 1 : count,
+      }
+    })
+  }
+
+  const getCurrentRow = (keys: string[]) => {
     return keys.reduce((acc, key) => {
       if (!customer[key as keyof TCustomer]) return acc
 
@@ -102,25 +142,6 @@ const Customer: FC = (): ReactElement => {
 
       return acc
     }, {})
-  }
-
-  const fetchCustomer = async () => {
-    if (!id) return
-
-    setIsLoadingCustomer(true)
-
-    try {
-      const response = await getCustomerById(id)
-      const { customer: customerData } = response.data
-
-      setCustomer(customerData)
-
-      return Promise.resolve()
-    } catch (error) {
-      return Promise.reject(error)
-    } finally {
-      setIsLoadingCustomer(false)
-    }
   }
 
   const handleClickBack = () => {
@@ -144,33 +165,29 @@ const Customer: FC = (): ReactElement => {
               <>
                 <CustomerRow>
                   <CustomerList>
-                    {Object.keys(mainRowCustomer).length > 0 &&
-                      Object.keys(mainRowCustomer).map((key) => {
+                    {Object.keys(mainRow).length > 0 &&
+                      Object.keys(mainRow).map((key) => {
                         return (
                           <CustomerItem key={key}>
                             <CustomerLabel>
                               {capitalizeFromCamelCase(key)}
                             </CustomerLabel>
-                            {mainRowCustomer[key as keyof TMainRowCustomer]}
+                            {mainRow[key as keyof TMainRow]}
                           </CustomerItem>
                         )
                       })}
                   </CustomerList>
                 </CustomerRow>
                 <CustomerRow>
-                  {Object.keys(secondaryRowCustomer).length > 0 && (
+                  {Object.keys(secondaryRow).length > 0 && (
                     <CustomerList>
-                      {Object.keys(secondaryRowCustomer).map((key) => {
+                      {Object.keys(secondaryRow).map((key) => {
                         return (
                           <CustomerItem key={key}>
                             <CustomerLabel>
                               {capitalizeFromCamelCase(key)}
                             </CustomerLabel>
-                            {
-                              secondaryRowCustomer[
-                                key as keyof TSecondaryRowCustomer
-                              ]
-                            }
+                            {secondaryRow[key as keyof TSecondaryRow]}
                           </CustomerItem>
                         )
                       })}

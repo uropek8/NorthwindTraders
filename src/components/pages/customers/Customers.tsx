@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect } from 'react'
+import { FC, ReactElement, useState, useEffect, useContext } from 'react'
 import { Column } from 'primereact/column'
 import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
@@ -9,8 +9,10 @@ import {
   CustomersContent,
   ColumnImageWrapper,
 } from './Customers.styles'
-import { QueryParams, ColumnMeta } from '@/types/types'
 import { getCustomers } from '@/api/customers'
+import { getAvatarPath } from '@/services/utils'
+import LogContext from '@/contex/log/LogContext'
+import { QueryParams, ColumnMeta, ISqlMetric } from '@/types/types'
 
 interface TCustomer {
   id: string
@@ -29,8 +31,8 @@ const Customers: FC = (): ReactElement => {
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
   const [page, setPage] = useState(1)
   const [first, setFirst] = useState(0)
+  const { metrics, updateLogMetrics } = useContext(LogContext)
   const LIMIT_COUNT = 20
-  const AVATAR_API_PATH = 'https://avatars.dicebear.com/v2/initials/'
 
   const columns: ColumnMeta[] = [
     { field: 'contactName', header: 'Contact' },
@@ -43,23 +45,6 @@ const Customers: FC = (): ReactElement => {
     fetchCustomers()
   }, [page])
 
-  const getPreparedCustomers = (list: TCustomer[]) => {
-    if (!list.length) return []
-
-    return list.map((item) => {
-      return {
-        ...item,
-        contactAvatar: getPreparedAvatarPath(item.contactName),
-      }
-    })
-  }
-
-  const getPreparedAvatarPath = (avatar: string) => {
-    const avatarPath = encodeURIComponent(avatar)
-
-    return `${AVATAR_API_PATH}${avatarPath}.svg`
-  }
-
   const fetchCustomers = async () => {
     setIsLoadingCustomers(true)
 
@@ -70,11 +55,20 @@ const Customers: FC = (): ReactElement => {
       }
 
       const response = await getCustomers(params)
-      const { customers, totalElementsFromDB: records } = response.data
-      const preparedCustomers = getPreparedCustomers(customers)
+      const {
+        customers: customersList,
+        totalElementsFromDB: records,
+        sqlLog,
+      } = response.data
+      const preparedCustomers = getPreparedCustomers(customersList)
+      const preparedSqlLog = getPreparedSqlLogs(
+        sqlLog,
+        preparedCustomers.length
+      )
 
-      setCustomers(preparedCustomers)
       setTotalRecords(records)
+      setCustomers(preparedCustomers)
+      updateSqlMetrics(preparedSqlLog)
 
       return Promise.resolve()
     } catch (error) {
@@ -82,6 +76,39 @@ const Customers: FC = (): ReactElement => {
     } finally {
       setIsLoadingCustomers(false)
     }
+  }
+
+  const getPreparedCustomers = (list: TCustomer[]) => {
+    if (!list.length) return []
+
+    return list.map((item) => {
+      return {
+        ...item,
+        contactAvatar: getAvatarPath(item.contactName),
+      }
+    })
+  }
+
+  const updateSqlMetrics = (logs: Partial<ISqlMetric[]>) => {
+    if (!logs.length) return
+
+    const updatedLogs = metrics.length ? [...logs, ...metrics] : [...logs]
+    const lastLogs = updatedLogs.slice(0, 5)
+
+    updateLogMetrics(lastLogs)
+  }
+
+  const getPreparedSqlLogs = (logs: ISqlMetric[], count: number) => {
+    if (!logs.length) return []
+
+    return logs.map((log) => {
+      const queryLog = log?.querySqlLog || ''
+
+      return {
+        ...log,
+        resultsCount: queryLog.includes('select count') ? 1 : count,
+      }
+    })
   }
 
   const avatarBodyTemplate = (row: TCustomer) => {
