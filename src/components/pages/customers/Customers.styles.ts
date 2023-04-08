@@ -9,6 +9,7 @@ export const CustomersContent = styled.div`
       tr > th {
         color: #000;
         line-height: 24px;
+        white-space: nowrap;
         background-color: #d9e2eb;
       }
     }
@@ -20,6 +21,7 @@ export const CustomersContent = styled.div`
         td {
           line-height: 24px;
           border: none;
+          white-space: nowrap;
         }
       }
     }

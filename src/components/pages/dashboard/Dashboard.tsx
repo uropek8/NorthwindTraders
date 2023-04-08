@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect, useContext } from 'react'
+import { FC, useState, useEffect, useContext, ReactElement } from 'react'
 
 import {
   DashboardBox,
@@ -27,7 +27,7 @@ const Dashboard: FC = (): ReactElement => {
   const [country, setCountry] = useState<string>('')
   const [geoCode, setGeoCode] = useState<string>('')
   const [metric, setMetric] = useState<Partial<IMetric>>({})
-  const { metrics } = useContext(LogContext)
+  const { metrics, updateErrorMsg } = useContext(LogContext)
   const LOCATION_DISTANCE = 200
   const SELECT_KEYS = ['select']
   const SELECT_WHERE_KEYS = ['select', 'where']
@@ -60,6 +60,9 @@ const Dashboard: FC = (): ReactElement => {
 
       return Promise.resolve()
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      updateErrorMsg(message)
+
       return Promise.reject(error)
     }
   }
@@ -87,6 +90,9 @@ const Dashboard: FC = (): ReactElement => {
 
       return Promise.resolve()
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      updateErrorMsg(message)
+
       return Promise.reject(error)
     }
   }

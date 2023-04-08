@@ -52,7 +52,7 @@ const Customer: FC = (): ReactElement => {
   const [mainRow, setMainRow] = useState<Partial<TMainRow>>({})
   const [secondaryRow, setSecondaryRow] = useState<Partial<TSecondaryRow>>({})
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(false)
-  const { metrics, updateLogMetrics } = useContext(LogContext)
+  const { metrics, updateLogMetrics, updateErrorMsg } = useContext(LogContext)
   const { id } = useParams()
   const navigate = useNavigate()
   const MAIN_KEYS_LIST = [
@@ -93,6 +93,9 @@ const Customer: FC = (): ReactElement => {
 
       return Promise.resolve()
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      updateErrorMsg(message)
+
       return Promise.reject(error)
     } finally {
       setIsLoadingCustomer(false)

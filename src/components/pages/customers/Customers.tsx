@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect, useContext } from 'react'
+import { FC, useState, useEffect, useContext, ReactElement } from 'react'
 import { Column } from 'primereact/column'
 import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
@@ -31,9 +31,8 @@ const Customers: FC = (): ReactElement => {
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
   const [page, setPage] = useState(1)
   const [first, setFirst] = useState(0)
-  const { metrics, updateLogMetrics } = useContext(LogContext)
+  const { metrics, updateLogMetrics, updateErrorMsg } = useContext(LogContext)
   const LIMIT_COUNT = 20
-
   const columns: ColumnMeta[] = [
     { field: 'contactName', header: 'Contact' },
     { field: 'contactTitle', header: 'Title' },
@@ -72,6 +71,9 @@ const Customers: FC = (): ReactElement => {
 
       return Promise.resolve()
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      updateErrorMsg(message)
+
       return Promise.reject(error)
     } finally {
       setIsLoadingCustomers(false)
@@ -152,6 +154,7 @@ const Customers: FC = (): ReactElement => {
             paginator={customers.length > 0}
             size="small"
             lazy
+            scrollable
             stripedRows
             onPage={handlePage}
           >

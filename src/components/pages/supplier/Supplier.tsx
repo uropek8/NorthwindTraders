@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect, useContext } from 'react'
+import { FC, useState, useEffect, useContext, ReactElement } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 
 import {
@@ -39,7 +39,7 @@ const Supplier: FC = (): ReactElement => {
   const [isLoadingSupplier, setIsLoadingSupplier] = useState(false)
   const { id } = useParams()
   const navigate = useNavigate()
-  const { metrics, updateLogMetrics } = useContext(LogContext)
+  const { metrics, updateLogMetrics, updateErrorMsg } = useContext(LogContext)
   const MAIN_KEYS_LIST = [
     'city',
     'address',
@@ -74,6 +74,9 @@ const Supplier: FC = (): ReactElement => {
 
       return Promise.resolve()
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      updateErrorMsg(message)
+
       return Promise.reject(error)
     } finally {
       setIsLoadingSupplier(false)

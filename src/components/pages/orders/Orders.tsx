@@ -26,7 +26,7 @@ const Orders: FC = (): ReactElement => {
   const [isLoadingOrders, setIsLoadingOrders] = useState<boolean>(true)
   const [page, setPage] = useState<number>(1)
   const [first, setFirst] = useState<number>(0)
-  const { metrics, updateLogMetrics } = useContext(LogContext)
+  const { metrics, updateLogMetrics, updateErrorMsg } = useContext(LogContext)
   const LIMIT_COUNT = 20
   const columns: ColumnMeta[] = [
     { field: 'totalPrice', header: 'Total Price' },
@@ -66,6 +66,9 @@ const Orders: FC = (): ReactElement => {
 
       return Promise.resolve()
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      updateErrorMsg(message)
+
       return Promise.reject(error)
     } finally {
       setIsLoadingOrders(false)

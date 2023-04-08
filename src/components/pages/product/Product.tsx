@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect, useContext } from 'react'
+import { FC, useState, useEffect, useContext, ReactElement } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 
 import {
@@ -50,7 +50,7 @@ const Product: FC = (): ReactElement => {
   const [isLoadingProduct, setIsLoadingProduct] = useState(false)
   const [mainRow, setMainRow] = useState<Partial<TMainRow>>({})
   const [secondaryRow, setSecondaryRow] = useState<Partial<TSecondaryRow>>({})
-  const { metrics, updateLogMetrics } = useContext(LogContext)
+  const { metrics, updateLogMetrics, updateErrorMsg } = useContext(LogContext)
   const { id } = useParams()
   const navigate = useNavigate()
   const MAIN_KEYS_LIST = [
@@ -89,6 +89,9 @@ const Product: FC = (): ReactElement => {
 
       return Promise.resolve()
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      updateErrorMsg(message)
+
       return Promise.reject(error)
     } finally {
       setIsLoadingProduct(false)

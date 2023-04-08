@@ -1,4 +1,5 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useState, useRef, useEffect } from 'react'
+import { Toast } from 'primereact/toast'
 import { Routes, Route } from 'react-router-dom'
 
 import { ISqlMetric } from '@/types/types'
@@ -21,6 +22,22 @@ const Suppliers = lazy(() => import('@/components/pages/suppliers/Suppliers'))
 
 const App = () => {
   const [metrics, setMetrics] = useState<Partial<ISqlMetric[]>>([])
+  const [errorMsg, setErrorMsg] = useState<string>('')
+  const refToast = useRef<Toast>(null)
+
+  useEffect(() => {
+    initErrorMessage()
+  }, [errorMsg])
+
+  const initErrorMessage = () => {
+    if (!errorMsg) return
+
+    refToast.current?.show({
+      detail: errorMsg,
+      severity: 'error',
+      summary: 'Request Error',
+    })
+  }
 
   return (
     <>
@@ -28,6 +45,8 @@ const App = () => {
         <LogContext.Provider
           value={{
             metrics,
+            fetchErrorMsg: errorMsg,
+            updateErrorMsg: setErrorMsg,
             updateLogMetrics: setMetrics,
           }}
         >
@@ -89,6 +108,7 @@ const App = () => {
           </Routes>
         </LogContext.Provider>
       </Suspense>
+      <Toast ref={refToast} />
     </>
   )
 }

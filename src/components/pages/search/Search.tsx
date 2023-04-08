@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState } from 'react'
+import { FC, ReactElement, useState, useContext } from 'react'
 import { useFormik } from 'formik'
 import { Button } from 'primereact/button'
 import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton'
@@ -22,11 +22,12 @@ import {
 } from './Search.styles'
 import { SearchParams } from '@/types/types'
 import { getSearchResults } from '@/api/search'
+import LogContext from '@/contex/log/LogContext'
 
 interface TResultProduct {
   id: string
   unitPrice: string
-  categoryId: number
+  productId: number
   productName: string
   unitsInStock: number
   quantityPerUnit: string
@@ -43,6 +44,7 @@ interface TResultCustomer {
 const Search: FC = (): ReactElement => {
   const [products, setProducts] = useState<TResultProduct[]>([])
   const [customers, setCustomers] = useState<TResultCustomer[]>([])
+  const { updateErrorMsg } = useContext(LogContext)
   const formik = useFormik({
     initialValues: {
       search: '',
@@ -70,6 +72,9 @@ const Search: FC = (): ReactElement => {
 
       return Promise.resolve()
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      updateErrorMsg(message)
+
       return Promise.reject(error)
     }
   }
@@ -164,7 +169,7 @@ const Search: FC = (): ReactElement => {
                 products.map((item, idx) => {
                   return (
                     <SearchResultItem key={item.id}>
-                      <SearchResultLink to={`/product/${item.categoryId}`}>
+                      <SearchResultLink to={`/product/${item.productId}`}>
                         {item.productName}
                       </SearchResultLink>
                       <SearchResultText>

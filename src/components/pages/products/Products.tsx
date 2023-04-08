@@ -1,4 +1,4 @@
-import { FC, ReactElement, useState, useEffect, useContext } from 'react'
+import { FC, useState, useEffect, useContext, ReactElement } from 'react'
 import { Column } from 'primereact/column'
 import { DataTable, DataTablePageEvent } from 'primereact/datatable'
 
@@ -23,9 +23,8 @@ const Products: FC = (): ReactElement => {
   const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(true)
   const [page, setPage] = useState<number>(1)
   const [first, setFirst] = useState<number>(0)
-  const { metrics, updateLogMetrics } = useContext(LogContext)
+  const { metrics, updateLogMetrics, updateErrorMsg } = useContext(LogContext)
   const LIMIT_COUNT = 20
-
   const columns: ColumnMeta[] = [
     { field: 'productName', header: 'Name' },
     { field: 'quantityPerUnit', header: 'Qt per unit' },
@@ -61,6 +60,9 @@ const Products: FC = (): ReactElement => {
 
       return Promise.resolve()
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      updateErrorMsg(message)
+
       return Promise.reject(error)
     } finally {
       setIsLoadingProducts(false)

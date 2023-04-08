@@ -15,6 +15,13 @@ jobs:
         run: |
           npm install
           npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_API_GEOLOCATION_PATH: ${{ secrets.VITE_API_GEOLOCATION_PATH }}
+          VITE_API_GEOLOCATION_KEY: ${{ secrets.VITE_API_GEOLOCATION_KEY }}
+          VITE_API_NEAR_BY_PATH: ${{ secrets.VITE_API_NEAR_BY_PATH }}
+          VITE_API_NEAR_BY_KEY: ${{ secrets.VITE_API_NEAR_BY_KEY }}
+          VITE_AVATAR_API_PATH: ${{ secrets.VITE_AVATAR_API_PATH }}
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.0
         with:
