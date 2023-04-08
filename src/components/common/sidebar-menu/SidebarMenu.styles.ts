@@ -1,6 +1,14 @@
 import styled from 'styled-components'
 import { NavLink } from 'react-router-dom'
 
+export const SidebarWrapper = styled.div`
+  aside {
+    @media (max-width: 1024px) {
+      display: none;
+    }
+  }
+`
+
 export const SidebarBox = styled.aside`
   width: 240px;
   height: 100vh;

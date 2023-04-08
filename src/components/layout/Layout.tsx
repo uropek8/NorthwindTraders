@@ -3,13 +3,13 @@ import { Outlet } from 'react-router-dom'
 
 import { ContentSection } from './Layout.styles'
 import Navbar from '@/components/common/navbar/Navbar'
-import Sidebar from '@/components/common/sidebar/Sidebar'
+import SidebarMenu from '@/components/common/sidebar-menu/SidebarMenu'
 
 const Layout: FC = (): ReactElement => {
   return (
     <>
       <Navbar />
-      <Sidebar />
+      <SidebarMenu />
       <ContentSection>
         <Outlet />
       </ContentSection>

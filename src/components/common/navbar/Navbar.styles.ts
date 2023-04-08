@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { Button } from 'primereact/button'
 
 export const NavbarBox = styled.nav`
   width: auto;
@@ -12,6 +13,10 @@ export const NavbarBox = styled.nav`
   border-bottom: 1px solid #f3f4f6;
   background-color: #ffffff;
   z-index: 30;
+
+  @media (max-width: 1024px) {
+    padding-left: 0;
+  }
 `
 
 export const NavbarContent = styled.div`
@@ -20,4 +25,18 @@ export const NavbarContent = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
+`
+
+export const NavbarBtn = styled(Button)`
+  &.p-button {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border-color: #111827;
+    background-color: #111827;
+
+    @media (max-width: 1024px) {
+      display: inline-flex;
+    }
+  }
 `

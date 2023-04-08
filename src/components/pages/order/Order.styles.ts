@@ -85,6 +85,7 @@ export const OrderTableWrapper = styled.div`
         color: #000;
         line-height: 24px;
         background-color: #d9e2eb;
+        white-space: nowrap;
       }
     }
 
@@ -95,6 +96,7 @@ export const OrderTableWrapper = styled.div`
         td {
           line-height: 24px;
           border: none;
+          white-space: nowrap;
         }
       }
     }

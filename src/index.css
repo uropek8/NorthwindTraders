@@ -8,6 +8,10 @@ body {
   font-family: 'Nunito', sans-serif;
   font-weight: 400;
   background-color: #f9fafb;
+
+  @media (max-width: 1024px) {
+    padding-left: 0;
+  }
 }
 
 #root {
@@ -22,8 +26,20 @@ a {
 ul {
   padding: 0;
   margin: 0;
+  list-style-type: none;
 }
 
 .p-component {
   font-family: inherit;
+}
+
+.mobile-sibebar .p-sidebar-header {
+  padding: 0;
+}
+.mobile-sibebar .p-sidebar-content {
+  padding: 0;
+  background-color: #1f2937;
+}
+.mobile-sibebar.p-sidebar {
+  width: 240px;
 }

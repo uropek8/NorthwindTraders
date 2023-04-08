@@ -1,5 +1,4 @@
 import { FC, ReactElement, SyntheticEvent, useRef } from 'react'
-
 import { Menu } from 'primereact/menu'
 
 import {
@@ -51,6 +50,7 @@ const NavbarDropdown: FC = (): ReactElement => {
         <i className="pi pi-bars"></i>
         <DropdownButtonText>SQLite Links</DropdownButtonText>
         <i className="pi pi-angle-down"></i>
+        <i className="pi pi-ellipsis-v"></i>
       </DropdownButton>
     </DropdownWrapper>
   )

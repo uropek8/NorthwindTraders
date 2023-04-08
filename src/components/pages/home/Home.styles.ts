@@ -48,6 +48,12 @@ export const HomeImage = styled.div`
   flex: 1 0 384px;
   max-width: 384px;
 
+  @media (max-width: 1024px) {
+    flex: 1 0 100%;
+    max-width: 100%;
+    margin-top: 20px;
+  }
+
   img {
     max-width: 100%;
     height: auto;

@@ -22,6 +22,7 @@ const Suppliers = lazy(() => import('@/components/pages/suppliers/Suppliers'))
 
 const App = () => {
   const [metrics, setMetrics] = useState<Partial<ISqlMetric[]>>([])
+  const [isShowSidebar, setIsShowSidebar] = useState<boolean>(false)
   const [errorMsg, setErrorMsg] = useState<string>('')
   const refToast = useRef<Toast>(null)
 
@@ -45,9 +46,11 @@ const App = () => {
         <LogContext.Provider
           value={{
             metrics,
+            isShowSidebar,
             fetchErrorMsg: errorMsg,
             updateErrorMsg: setErrorMsg,
             updateLogMetrics: setMetrics,
+            toggleSidebar: setIsShowSidebar,
           }}
         >
           <Routes>
