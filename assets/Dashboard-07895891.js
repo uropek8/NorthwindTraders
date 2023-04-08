@@ -1,4 +1,4 @@
-import{r as l,L as R,j as t}from"./index-ec8740ca.js";import{s as n}from"./styled-components.browser.esm-220c6c9f.js";import{i as E}from"./axios-33dc75a8.js";const w=n.div`
+import{r as l,L as R,j as t}from"./index-f53f517b.js";import{s as n}from"./styled-components.browser.esm-f73fadf9.js";import{i as E}from"./axios-33dc75a8.js";const w=n.div`
   display: flex;
   flex-direction: column;
   padding: 25px;
